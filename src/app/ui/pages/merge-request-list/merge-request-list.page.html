@@ -1,0 +1,49 @@
+<div class="container mx-auto px-4 py-8">
+
+  <!-- filter bar wrapper -->
+  <div class="bg-base-200 sticky top-0 z-20 mb-6 transition-shadow duration-200 rounded-b-2xl border border-transparent
+              [box-shadow:0_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_2px_4px_-2px_rgb(0_0_0_/_0.1)]
+              hover:[box-shadow:0_10px_15px_-3px_rgb(0_0_0_/_0.1),_0_4px_6px_-4px_rgb(0_0_0_/_0.1)]">
+    <!-- Progress bar -->
+    @if (approvalsProgress(); as progress) {
+      <app-progress 
+          [value]="progress.current"
+          [max]="progress.total"
+          [type]="progress.current === progress.total ? 'success' : 'primary'"
+        />
+    }
+    <!-- filter bar --> 
+    <app-filter-bar 
+      [availableTags]="availableTags()"
+      (filtersChange)="onFiltersChange($event)">
+    </app-filter-bar>
+  </div>
+
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex justify-center items-center py-12">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="alert alert-error" role="alert">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Merge Requests List -->
+  @if (!(loading()) && !(error())) {
+    <div class="p-4">
+      <app-merge-request-list 
+        [mergeRequests]="filteredMergeRequests()"
+        [progress]="approvalsProgress()"
+      ></app-merge-request-list>
+    </div>
+  }
+</div>
