@@ -20,6 +20,7 @@ import {
 } from '../../components/filter-bar/filter-bar.component';
 import { MergeRequestListComponent } from '../../components/merge-request-list/merge-request-list.component';
 import { ProgressComponent } from '../../shared/components/progress/progress.component';
+import { MergeRequest } from '../../../models/merge-request.model';
 
 @Component({
   selector: 'app-merge-requests-list-page',
@@ -98,7 +99,7 @@ export class MergeRequestsListPage {
     const mrs = this.mergeRequests();
     const filters = this.filterState();
 
-    return mrs.filter((mr) => {
+    const filtered = mrs.filter((mr) => {
       if (mr.approvals?.approved && !filters.showApproved) return false;
       if (!mr.approvals?.approved && !filters.showPending) return false;
       if (filters.showOnlyMine && mr.author.username !== this.currentUser())
@@ -133,6 +134,28 @@ export class MergeRequestsListPage {
 
       return true;
     });
+
+    if (filters.sortBy !== 'none') {
+      return [...filtered].sort((a, b) => {
+        let comparison = 0;
+        switch (filters.sortBy) {
+          case 'created':
+            comparison = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            break;
+          case 'approvals':
+            comparison = (b.approvals?.currentApprovals || 0) - (a.approvals?.currentApprovals || 0);
+            break;
+          case 'reactions':
+            const getReactionScore = (mr: MergeRequest) => 
+              mr.reactions.thumbsUp - mr.reactions.thumbsDown + mr.reactions.heart + mr.reactions.rocket;
+            comparison = getReactionScore(b) - getReactionScore(a);
+            break;
+        }
+        return filters.sortDirection === 'asc' ? -comparison : comparison;
+      });
+    }
+
+    return filtered;
   });
 
   ngOnInit(): void {

@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TagColorPipe } from '../../shared/pipes/tag-color.pipe';
+import { TitleCasePipe } from '@angular/common';
 
 export interface FilterState {
   showApproved: boolean;
   showPending: boolean;
-  sortBy: 'created' | 'reactions' | 'none';
+  sortBy: 'created' | 'approvals' | 'reactions' | 'none';
   sortDirection: 'asc' | 'desc';
   searchTerm: string;
   showOnlyMine: boolean;
@@ -58,7 +59,7 @@ export interface FilterState {
                 class="tab"
                 [class.tab-active]="selectedCategory === category"
                 (click)="selectCategory(category)">
-                {{ category }}
+                {{ category | titlecase }}
               </button>
             }
             @if (hasEmptyCategories()) {
@@ -117,6 +118,13 @@ export interface FilterState {
                   Date
                 </button>
                 <button
+                  (click)="updateSort('approvals')"
+                  [class.btn-primary]="filters.sortBy === 'approvals'"
+                  [class.btn-ghost]="filters.sortBy !== 'approvals'"
+                  class="btn btn-sm join-item">
+                  Approvals
+                </button>
+                <button
                   (click)="updateSort('reactions')"
                   [class.btn-primary]="filters.sortBy === 'reactions'"
                   [class.btn-ghost]="filters.sortBy !== 'reactions'"
@@ -135,7 +143,7 @@ export interface FilterState {
       </div>
     </div>
   `,
-  imports: [FormsModule, TagColorPipe]
+  imports: [FormsModule, TagColorPipe, TitleCasePipe]
 })
 export class FilterBarComponent {
   @Output() filtersChange = new EventEmitter<FilterState>();
