@@ -40,9 +40,9 @@ export class MergeRequestsListPage {
   readonly approvalsProgress = this.store.selectSignal(selectApprovalsProgress);
 
   private filterState = signal<FilterState>({
-    showApproved: true,
+    showApproved: false,
     showPending: true,
-    sortBy: 'none',
+    sortBy: 'created',
     sortDirection: 'desc',
     searchTerm: '',
     showOnlyMine: false,

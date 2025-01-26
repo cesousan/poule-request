@@ -150,9 +150,9 @@ export class FilterBarComponent {
   @Input() availableTags: Map<string, Set<string>> = new Map();
 
   filters: FilterState = {
-    showApproved: true,
+    showApproved: false,
     showPending: true,
-    sortBy: 'none',
+    sortBy: 'created',
     sortDirection: 'desc',
     searchTerm: '',
     showOnlyMine: false,
