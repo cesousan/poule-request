@@ -1,6 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { AUTH_SERVICE } from '../../services/auth.interface';
+import { AuthActions } from '../../store/auth/auth.actions';
+import { selectUser } from '../../store/auth/auth.selectors';
 
 @Component({
   selector: 'app-shell',
@@ -20,7 +23,9 @@ import { AUTH_SERVICE } from '../../services/auth.interface';
           <div class="dropdown dropdown-end">
             <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
               <div class="w-10 rounded-full">
-                <img [src]="currentUser()?.avatar_url" alt="Profile" />
+                @if (currentUser(); as user) {
+                  <img [src]="user.avatar_url" alt="Profile" />
+                }
               </div>
             </div>
             <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
@@ -38,13 +43,13 @@ import { AUTH_SERVICE } from '../../services/auth.interface';
   `
 })
 export class ShellComponent {
-  private readonly authService = inject(AUTH_SERVICE);
   private readonly router = inject(Router);
+  private readonly store = inject(Store);
   
-  readonly currentUser = computed(() => this.authService.currentUser);
+  readonly currentUser =  this.store.selectSignal(selectUser);
 
   logout(): void {
-    this.authService.logout();
+    this.store.dispatch(AuthActions.logout());
     this.router.navigate(['/login']);
   }
 } 

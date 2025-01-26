@@ -9,7 +9,7 @@ export interface AuthState {
 
 export const initialState: AuthState = {
   user: null,
-  token: null,
+  token: localStorage.getItem('gitlab_token'),
   loading: false,
   error: null
 }; 

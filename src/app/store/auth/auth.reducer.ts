@@ -25,30 +25,26 @@ export const authReducer = createReducer(
     error
   })),
 
-  on(AuthActions.loadUser, (state) => ({
+  on(AuthActions.initializeAuth, (state) => ({
     ...state,
     loading: true,
     error: null
   })),
 
-  on(AuthActions.loadUserSuccess, (state, { user }) => ({
+  on(AuthActions.initializeAuthSuccess, (state, { user, token }) => ({
     ...state,
     user,
+    token,
     loading: false
   })),
 
-  on(AuthActions.loadUserFailure, (state, { error }) => ({
+  on(AuthActions.initializeAuthFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error
   })),
 
   on(AuthActions.logout, (state) => ({
-    ...state,
-    loading: true
-  })),
-
-  on(AuthActions.logoutSuccess, () => ({
     ...initialState
-  }))
+  })),
 ); 

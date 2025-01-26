@@ -14,6 +14,7 @@ export interface IAuthService {
   login(token: string): Observable<GitlabUser>;
   logout(): void;
   getToken(): string | null;
+  loadUser(token: string): Observable<GitlabUser>;
 }
 
 export const AUTH_SERVICE = new InjectionToken<IAuthService>('AUTH_SERVICE'); 

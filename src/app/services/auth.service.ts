@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { GitlabUser, IAuthService } from './auth.interface';
 
@@ -9,12 +9,7 @@ export class AuthService implements IAuthService {
   private readonly tokenKey = 'gitlab_token';
   private readonly _currentUser = new BehaviorSubject<GitlabUser | null>(null);
 
-  constructor(private http: HttpClient) {
-    const token = this.getToken();
-    if (token) {
-      this.loadUser(token).subscribe();
-    }
-  }
+  private readonly http = inject(HttpClient);
 
   get currentUser$(): Observable<GitlabUser | null> {
     return this._currentUser.asObservable();
@@ -39,11 +34,7 @@ export class AuthService implements IAuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
-  private setToken(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
-  }
-
-  private loadUser(token: string): Observable<GitlabUser> {
+  loadUser(token: string): Observable<GitlabUser> {
     return this.http.get<GitlabUser>(`${this.apiUrl}/user`, {
       headers: new HttpHeaders({
         'PRIVATE-TOKEN': token
@@ -51,5 +42,9 @@ export class AuthService implements IAuthService {
     }).pipe(
       tap(user => this._currentUser.next(user))
     );
+  }
+
+  private setToken(token: string): void {
+    localStorage.setItem(this.tokenKey, token);
   }
 } 

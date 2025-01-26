@@ -6,6 +6,28 @@ import { Router } from '@angular/router';
 import { AuthActions } from './auth.actions';
 import { AUTH_SERVICE, IAuthService } from '../../services/auth.interface';
 
+const initializeAuth = createEffect(
+  (
+    actions$ = inject(Actions),
+    authService = inject<IAuthService>(AUTH_SERVICE)
+  ) => {
+    return actions$.pipe(
+      ofType(AuthActions.initializeAuth),
+      switchMap(() => {
+        const token = localStorage.getItem('gitlab_token');
+        if (!token) {
+          return of(AuthActions.initializeAuthFailure({ error: 'No token found' }));
+        }
+        return authService.loadUser(token).pipe(
+          map(user => AuthActions.initializeAuthSuccess({ user, token })),
+          catchError((error) => of(AuthActions.initializeAuthFailure({ error })))
+        );
+      })
+    );
+  },
+  { functional: true }
+);
+
 const login = createEffect(
   (
     actions$ = inject(Actions),
@@ -28,65 +50,41 @@ const login = createEffect(
   { functional: true }
 );
 
-const loginSuccess = createEffect(
+const authSuccess = createEffect(
   (
     actions$ = inject(Actions),
     router = inject(Router)
   ) => {
     return actions$.pipe(
-      ofType(AuthActions.loginSuccess),
-      tap(() => router.navigate(['/mrs']))
+      ofType(AuthActions.loginSuccess, AuthActions.initializeAuthSuccess),
+      tap(({ token }) => {
+        localStorage.setItem('gitlab_token', token);
+        router.navigate(['/mrs']);
+      })
     );
   },
   { functional: true, dispatch: false }
 );
 
-const loadUser = createEffect(
-  (
-    actions$ = inject(Actions),
-    authService = inject<IAuthService>(AUTH_SERVICE)
-  ) => {
-    return actions$.pipe(
-      ofType(AuthActions.loadUser),
-      switchMap(() =>
-        authService.currentUser$.pipe(
-          map(user => {
-            if (!user) throw new Error('User not found');
-            return AuthActions.loadUserSuccess({ user });
-          }),
-          catchError(error => 
-            of(AuthActions.loadUserFailure({ 
-              error: error?.message || 'Failed to load user' 
-            }))
-          )
-        )
-      )
-    );
-  },
-  { functional: true }
-);
-
 const logout = createEffect(
   (
     actions$ = inject(Actions),
-    authService = inject<IAuthService>(AUTH_SERVICE),
     router = inject(Router)
   ) => {
     return actions$.pipe(
       ofType(AuthActions.logout),
       tap(() => {
-        authService.logout();
+        localStorage.removeItem('gitlab_token');
         router.navigate(['/login']);
-      }),
-      map(() => AuthActions.logoutSuccess())
+      })
     );
   },
-  { functional: true }
+  { functional: true, dispatch: false }
 );
 
 export const authEffects = {
+  initializeAuth,
   login,
-  loginSuccess,
-  loadUser,
+  authSuccess,
   logout
 }; 
