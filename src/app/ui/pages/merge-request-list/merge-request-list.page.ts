@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   signal,
+  effect,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { AUTH_SERVICE, IAuthService } from '../../../services/auth.interface';
@@ -34,10 +35,29 @@ export class MergeRequestsListPage {
   private readonly store = inject(Store);
   private readonly authService = inject<IAuthService>(AUTH_SERVICE);
 
+  private readonly showProgress = signal(true);
+  
   readonly mergeRequests = this.store.selectSignal(selectMergeRequests);
   readonly loading = this.store.selectSignal(selectLoading);
   readonly error = this.store.selectSignal(selectError);
   readonly approvalsProgress = this.store.selectSignal(selectApprovalsProgress);
+  readonly isComplete = signal(false);
+
+  constructor() {
+    effect(() => {
+      const progress = this.approvalsProgress();
+      if (progress?.current === progress?.total && progress.total > 0) {
+        this.isComplete.set(true);
+        setTimeout(() => this.showProgress.set(false), 5000);
+      }
+    });
+  }
+
+  readonly displayProgress = computed(() => {
+    const progress = this.approvalsProgress();
+    if (!progress || progress.total === 0) return false;
+    return this.showProgress();
+  });
 
   private filterState = signal<FilterState>({
     showApproved: false,

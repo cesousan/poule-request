@@ -7,7 +7,7 @@ export const AuthActions = createActionGroup({
     'Initialize Auth': emptyProps(),
     'Initialize Auth Success': props<{ user: GitlabUser; token: string }>(),
     'Initialize Auth Failure': props<{ error: string }>(),
-    'Login': props<{ token: string }>(),
+    'Login': props<{ token: string, organizationId: string }>(),
     'Login Success': props<{ user: GitlabUser; token: string }>(),
     'Login Failure': props<{ error: string }>(),
     'Logout': emptyProps(),

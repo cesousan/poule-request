@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { concat, delay, forkJoin, map, Observable, reduce } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import {
   GitlabMergeRequest,
   GitlabMergeRequestApproval,
@@ -13,19 +13,24 @@ import { IGitlabService } from './gitlab.interface';
 @Injectable()
 export class GitlabService implements IGitlabService {
   private readonly apiUrl = 'https://gitlab.com/api/v4';
-  private readonly organizationId = '4633457';
   private readonly authService = inject(AUTH_SERVICE);
   private readonly http = inject(HttpClient);
 
   getMergeRequests(): Observable<MergeRequest[]> {
     const token = this.authService.getToken();
+    const organizationId = this.authService.getOrganizationId();
+    
     if (!token) {
       throw new Error('No token available');
+    }
+    
+    if (!organizationId) {
+      throw new Error('No organization ID available');
     }
 
     return this.http
       .get<GitlabMergeRequest[]>(
-        `${this.apiUrl}/groups/${this.organizationId}/merge_requests`,
+        `${this.apiUrl}/groups/${organizationId}/merge_requests`,
         {
           headers: new HttpHeaders({
             'PRIVATE-TOKEN': token,
@@ -44,7 +49,6 @@ export class GitlabService implements IGitlabService {
     const projectName = mr.references.relative.split('!')[0];
     const tagNames = projectName
       .split('/')
-      .filter((tag) => tag.toLowerCase() !== 'marjory' && tag.trim() !== '')
       .filter((tag, index, self) => self.indexOf(tag) === index);
 
     return {

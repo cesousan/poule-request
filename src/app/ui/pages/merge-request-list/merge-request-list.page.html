@@ -5,12 +5,23 @@
               [box-shadow:0_4px_6px_-1px_rgb(0_0_0_/_0.1),_0_2px_4px_-2px_rgb(0_0_0_/_0.1)]
               hover:[box-shadow:0_10px_15px_-3px_rgb(0_0_0_/_0.1),_0_4px_6px_-4px_rgb(0_0_0_/_0.1)]">
     <!-- Progress bar -->
-    @if (approvalsProgress(); as progress) {
-      <app-progress 
-          [value]="progress.current"
-          [max]="progress.total"
-          [type]="progress.current === progress.total ? 'success' : 'primary'"
-        />
+    @if (displayProgress(); as show) {
+      @if (approvalsProgress(); as progress) {
+        <div class="px-4 py-2 animate-slide-in"
+             [class]="isComplete() ? 'animate-slide-out' : ''">
+          <div class="flex flex-col gap-1">
+            <span class="text-sm text-base-content/50">
+              {{ progress.current === progress.total ? 'Loading complete!' : 'Loading approvals for all merge requests...' }}
+            </span>
+            <app-progress 
+              [value]="progress.current"
+              [max]="progress.total"
+              [type]="progress.current === progress.total ? 'success' : 'primary'"
+              class="transition-colors duration-500"
+            />
+          </div>
+        </div>
+      }
     }
     <!-- filter bar --> 
     <app-filter-bar 

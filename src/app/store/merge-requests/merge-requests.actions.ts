@@ -13,4 +13,4 @@ export const MergeRequestsActions = createActionGroup({
     }>(),
     'Load Approval Failure': props<{ error: string }>(),
   }
-}); 
+});

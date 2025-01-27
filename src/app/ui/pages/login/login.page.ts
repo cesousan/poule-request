@@ -46,7 +46,27 @@ import { selectError, selectLoading } from '../../../store/auth/auth.selectors';
               </label>
             </div>
 
-            <button type="submit" class="btn btn-primary w-full">
+            <div>
+              <label class="label">
+                <span class="label-text">Organization ID</span>
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="organizationId"
+                name="organizationId"
+                placeholder="Enter your GitLab organization ID"
+                class="input input-bordered w-full"
+                [class.input-error]="error()"
+              />
+              <label class="label">
+                <span class="label-text-alt">Found in your GitLab group URL</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full" [disabled]="loading()">
+              @if (loading()) {
+                <span class="loading loading-spinner"></span>
+              }
               Login
             </button>
           </form>
@@ -62,13 +82,17 @@ export class LoginPage {
   readonly error = this.store.selectSignal(selectError);
   
   token = '';
+  organizationId = '';
 
   onSubmit(event: Event): void {
     event.preventDefault();
-    if (!this.token) {
+    if (!this.token || !this.organizationId) {
       return;
     }
 
-    this.store.dispatch(AuthActions.login({ token: this.token }));
+    this.store.dispatch(AuthActions.login({ 
+      token: this.token,
+      organizationId: this.organizationId 
+    }));
   }
 } 

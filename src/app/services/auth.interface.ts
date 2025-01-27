@@ -11,9 +11,10 @@ export interface GitlabUser {
 export interface IAuthService {
   currentUser$: Observable<GitlabUser | null>;
   currentUser: GitlabUser | null;
-  login(token: string): Observable<GitlabUser>;
+  login(token: string, organizationId: string): Observable<GitlabUser>;
   logout(): void;
   getToken(): string | null;
+  getOrganizationId(): string | null;
   loadUser(token: string): Observable<GitlabUser>;
 }
 

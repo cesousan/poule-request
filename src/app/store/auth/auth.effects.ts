@@ -35,8 +35,8 @@ const login = createEffect(
   ) => {
     return actions$.pipe(
       ofType(AuthActions.login),
-      switchMap(({ token }) =>
-        authService.login(token).pipe(
+      switchMap(({ token, organizationId }) =>
+        authService.login(token, organizationId).pipe(
           map(user => AuthActions.loginSuccess({ user, token })),
           catchError(error => 
             of(AuthActions.loginFailure({ 
